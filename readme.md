@@ -2,7 +2,6 @@
 
 A modern, easy-to-use **invoice generator** built with React and Bootstrap. Effortlessly create, preview, and export professional invoices as PDFs for your clients or business needs!
 
-![Screenshot Demo](insert-demo-screenshot-url-here)
 
 ---
 
@@ -26,11 +25,6 @@ A modern, easy-to-use **invoice generator** built with React and Bootstrap. Effo
 
 ---
 
-## 📸 Demo
-
-Coming soon! (Add a GIF or screenshot of invoice creation and PDF export)
-
----
 
 ## 🏁 Getting Started
 
