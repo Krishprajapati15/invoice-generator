@@ -496,3 +496,20 @@ body {
   border-color: #6366f1 !important;
   box-shadow: 0 0 0 2px #a5b4fc !important;
 }
+
+.invoice-item-table-wrapper {
+  margin: 12px 0 20px 0;
+  padding: 12px 8px 18px 8px;
+  border-radius: 1.1rem;
+  background: #fff;
+  box-shadow: 0 1.5px 8px rgba(99, 102, 241, 0.03);
+}
+
+.invoice-item-table-wrapper table {
+  margin-bottom: 0;
+}
+
+.invoice-item-table-wrapper th,
+.invoice-item-table-wrapper td {
+  vertical-align: middle !important;
+}

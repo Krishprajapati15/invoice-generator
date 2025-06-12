@@ -9,13 +9,19 @@ class InvoiceItem extends React.Component {
   render() {
     const { onItemizedItemEdit, currency, onRowDel, items } = this.props;
     return (
-      <div>
+      <div className="invoice-item-table-wrapper">
         <Table responsive bordered hover className="mb-0">
           <thead>
             <tr>
-              <th style={{ minWidth: 200 }}>ITEM</th>
-              <th style={{ minWidth: 80 }}>QTY</th>
-              <th style={{ minWidth: 140 }}>PRICE/RATE</th>
+              <th className="text-center" style={{ minWidth: 200 }}>
+                ITEM
+              </th>
+              <th className="text-center" style={{ minWidth: 80 }}>
+                QTY
+              </th>
+              <th className="text-center" style={{ minWidth: 140 }}>
+                PRICE/RATE
+              </th>
               <th className="text-center" style={{ minWidth: 70 }}>
                 ACTION
               </th>
@@ -45,29 +51,33 @@ class ItemRow extends React.Component {
   render() {
     return (
       <tr>
-        <td style={{ width: "100%" }}>
-          <EditableField
-            onItemizedItemEdit={this.props.onItemizedItemEdit}
-            cellData={{
-              type: "text",
-              name: "name",
-              placeholder: "Item name",
-              value: this.props.item.name,
-              id: this.props.item.id,
-            }}
-          />
-          <EditableField
-            onItemizedItemEdit={this.props.onItemizedItemEdit}
-            cellData={{
-              type: "text",
-              name: "description",
-              placeholder: "Item description",
-              value: this.props.item.description,
-              id: this.props.item.id,
-            }}
-          />
+        <td style={{ width: "100%", padding: "14px 12px" }}>
+          <div style={{ marginBottom: "7px" }}>
+            <EditableField
+              onItemizedItemEdit={this.props.onItemizedItemEdit}
+              cellData={{
+                type: "text",
+                name: "name",
+                placeholder: "Item name",
+                value: this.props.item.name,
+                id: this.props.item.id,
+              }}
+            />
+          </div>
+          <div>
+            <EditableField
+              onItemizedItemEdit={this.props.onItemizedItemEdit}
+              cellData={{
+                type: "text",
+                name: "description",
+                placeholder: "Item description",
+                value: this.props.item.description,
+                id: this.props.item.id,
+              }}
+            />
+          </div>
         </td>
-        <td style={{ minWidth: "70px" }}>
+        <td style={{ minWidth: "70px", padding: "14px 10px" }}>
           <EditableField
             onItemizedItemEdit={this.props.onItemizedItemEdit}
             cellData={{
@@ -80,7 +90,7 @@ class ItemRow extends React.Component {
             }}
           />
         </td>
-        <td style={{ minWidth: "130px" }}>
+        <td style={{ minWidth: "130px", padding: "14px 10px" }}>
           <EditableField
             onItemizedItemEdit={this.props.onItemizedItemEdit}
             cellData={{
@@ -96,14 +106,19 @@ class ItemRow extends React.Component {
             }}
           />
         </td>
-        <td className="text-center" style={{ minWidth: "50px" }}>
+        <td
+          className="text-center"
+          style={{ minWidth: "50px", padding: "10px" }}
+        >
           <BiTrash
             onClick={this.onDelEvent.bind(this)}
             style={{
               height: "33px",
               width: "33px",
               padding: "7.5px",
+              margin: "0 auto",
               cursor: "pointer",
+              display: "block",
             }}
             className="text-white mt-1 btn btn-danger"
             title="Delete"
