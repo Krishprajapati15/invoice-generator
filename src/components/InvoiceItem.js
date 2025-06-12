@@ -3,7 +3,6 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import Table from "react-bootstrap/Table";
 import { BiTrash } from "react-icons/bi";
 import EditableField from "./EditableField";
-import "./InvoiceFormCustome.css";
 
 class InvoiceItem extends React.Component {
   render() {
