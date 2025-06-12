@@ -1,12 +1,13 @@
 import React from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Table from "react-bootstrap/Table";
-import { BiTrash } from "react-icons/bi";
+import { BiTrash, BiPlusCircle } from "react-icons/bi";
 import EditableField from "./EditableField";
 
 class InvoiceItem extends React.Component {
   render() {
-    const { onItemizedItemEdit, currency, onRowDel, items } = this.props;
+    const { onItemizedItemEdit, currency, onRowDel, items, onRowAdd } =
+      this.props;
     return (
       <div className="invoice-item-table-wrapper">
         <Table responsive bordered hover className="mb-0">
@@ -36,6 +37,35 @@ class InvoiceItem extends React.Component {
                 currency={currency}
               />
             ))}
+            <tr>
+              <td colSpan={4} className="p-2 text-center">
+                <button
+                  type="button"
+                  onClick={onRowAdd}
+                  style={{
+                    background: "#e0e7ef",
+                    color: "#3a6ea5",
+                    border: "none",
+                    padding: "8px 22px",
+                    borderRadius: "20px",
+                    fontWeight: 600,
+                    display: "inline-flex",
+                    alignItems: "center",
+                    fontSize: "1rem",
+                    transition: "background 0.18s",
+                  }}
+                  onMouseOver={(e) =>
+                    (e.currentTarget.style.background = "#c7d5e7")
+                  }
+                  onMouseOut={(e) =>
+                    (e.currentTarget.style.background = "#e0e7ef")
+                  }
+                >
+                  <BiPlusCircle size={22} className="me-2" />
+                  Add Item
+                </button>
+              </td>
+            </tr>
           </tbody>
         </Table>
       </div>
