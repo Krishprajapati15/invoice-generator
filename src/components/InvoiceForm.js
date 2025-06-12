@@ -1,14 +1,10 @@
 import React from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-import Row from "react-bootstrap/Row";
-import Col from "react-bootstrap/Col";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
-import Card from "react-bootstrap/Card";
+import InputGroup from "react-bootstrap/InputGroup";
 import InvoiceItem from "./InvoiceItem";
 import InvoiceModal from "./InvoiceModal";
-import InputGroup from "react-bootstrap/InputGroup";
-import "./InvoiceFormCustome.css";
 import {
   BsCalendar,
   BsHash,
@@ -16,7 +12,9 @@ import {
   BsPerson,
   BsEnvelope,
   BsGeoAlt,
+  BsPlusCircle,
 } from "react-icons/bs";
+import "./InvoiceFormCustome.css";
 
 class InvoiceForm extends React.Component {
   constructor(props) {
@@ -43,16 +41,16 @@ class InvoiceForm extends React.Component {
       shippingCharge: "",
       logo: null,
       logoPreview: null,
+      items: [
+        {
+          id: 0,
+          name: "",
+          description: "",
+          price: "1.00",
+          quantity: 1,
+        },
+      ],
     };
-    this.state.items = [
-      {
-        id: 0,
-        name: "",
-        description: "",
-        price: "1.00",
-        quantity: 1,
-      },
-    ];
     this.editField = this.editField.bind(this);
   }
   componentDidMount(prevProps) {
@@ -61,7 +59,7 @@ class InvoiceForm extends React.Component {
   handleRowDel(items) {
     var index = this.state.items.indexOf(items);
     this.state.items.splice(index, 1);
-    this.setState(this.state.items);
+    this.setState({ items: this.state.items });
   }
   handleAddEvent(evt) {
     var id = (+new Date() + Math.floor(Math.random() * 999999)).toString(36);
@@ -73,15 +71,15 @@ class InvoiceForm extends React.Component {
       quantity: 1,
     };
     this.state.items.push(items);
-    this.setState(this.state.items);
+    this.setState({ items: this.state.items });
   }
   handleCalculateTotal() {
     var items = this.state.items;
     var subTotal = 0;
 
-    items.map(function (items) {
+    items.forEach(function (item) {
       subTotal = parseFloat(
-        subTotal + parseFloat(items.price).toFixed(2) * parseInt(items.quantity)
+        subTotal + parseFloat(item.price).toFixed(2) * parseInt(item.quantity)
       ).toFixed(2);
     });
 
@@ -125,13 +123,13 @@ class InvoiceForm extends React.Component {
       value: evt.target.value,
     };
     var items = this.state.items.slice();
-    var newItems = items.map(function (items) {
-      for (var key in items) {
-        if (key == item.name && items.id == item.id) {
-          items[key] = item.value;
+    var newItems = items.map(function (itm) {
+      for (var key in itm) {
+        if (key === item.name && itm.id === item.id) {
+          itm[key] = item.value;
         }
       }
-      return items;
+      return itm;
     });
     this.setState({ items: newItems });
     this.handleCalculateTotal();
@@ -324,12 +322,19 @@ class InvoiceForm extends React.Component {
 
           {/* Itemized Items Table */}
           <div className="invoice-items-table">
-            <Button
-              className="invoice-add-btn"
-              onClick={this.handleAddEvent.bind(this)}
-            >
-              + Add Item
-            </Button>
+            <div className="beautiful-add-item-row">
+              <div className="beautiful-add-item-label">
+                <span>Add an item or service to your invoice</span>
+              </div>
+              <Button
+                className="beautiful-add-btn"
+                onClick={this.handleAddEvent.bind(this)}
+                variant="outline-primary"
+              >
+                <BsPlusCircle size={22} className="me-2" />
+                Add Item
+              </Button>
+            </div>
             <InvoiceItem
               onItemizedItemEdit={this.onItemizedItemEdit.bind(this)}
               onRowAdd={this.handleAddEvent.bind(this)}
@@ -341,45 +346,85 @@ class InvoiceForm extends React.Component {
 
           {/* Notes & Terms */}
           <div className="invoice-notes-section custom-notes-section">
-  <div className="d-flex align-items-center mb-2">
-    <div className="custom-notes-icon me-2">
-      <svg width="24" height="24" fill="currentColor" aria-hidden="true">
-        <circle cx="12" cy="12" r="10" fill="#e0e7ff"/>
-        <text x="12" y="16" textAnchor="middle" fontSize="14" fill="#6366f1" fontFamily="Arial" fontWeight="bold" dominantBaseline="middle">📝</text>
-      </svg>
-    </div>
-    <div className="invoice-notes-title mb-0">Notes</div>
-  </div>
-  <Form.Control
-    placeholder="Thanks for your business!"
-    name="notes"
-    value={this.state.notes}
-    onChange={(event) => this.editField(event)}
-    as="textarea"
-    className="invoice-notes-field custom-notes-field"
-    rows={2}
-    aria-label="Invoice notes"
-  />
-  <div className="d-flex align-items-center mt-4 mb-2">
-    <div className="custom-notes-icon me-2">
-      <svg width="24" height="24" fill="currentColor" aria-hidden="true">
-        <rect width="20" height="20" x="2" y="2" rx="5" fill="#e0e7ff"/>
-        <text x="12" y="16" textAnchor="middle" fontSize="14" fill="#6366f1" fontFamily="Arial" fontWeight="bold" dominantBaseline="middle">⚖️</text>
-      </svg>
-    </div>
-    <div className="invoice-notes-title mb-0">Terms</div>
-  </div>
-  <Form.Control
-    placeholder="For example: Payment is due within 30 days."
-    name="terms"
-    value={this.state.terms}
-    onChange={(event) => this.editField(event)}
-    as="textarea"
-    className="invoice-terms-field custom-notes-field"
-    rows={2}
-    aria-label="Invoice terms"
-  />
-</div>
+            <div className="d-flex align-items-center mb-2">
+              <div className="custom-notes-icon me-2">
+                <svg
+                  width="24"
+                  height="24"
+                  fill="currentColor"
+                  aria-hidden="true"
+                >
+                  <circle cx="12" cy="12" r="10" fill="#e0e7ff" />
+                  <text
+                    x="12"
+                    y="16"
+                    textAnchor="middle"
+                    fontSize="14"
+                    fill="#6366f1"
+                    fontFamily="Arial"
+                    fontWeight="bold"
+                    dominantBaseline="middle"
+                  >
+                    📝
+                  </text>
+                </svg>
+              </div>
+              <div className="invoice-notes-title mb-0">Notes</div>
+            </div>
+            <Form.Control
+              placeholder="Thanks for your business!"
+              name="notes"
+              value={this.state.notes}
+              onChange={(event) => this.editField(event)}
+              as="textarea"
+              className="invoice-notes-field custom-notes-field"
+              rows={2}
+              aria-label="Invoice notes"
+            />
+            <div className="d-flex align-items-center mt-4 mb-2">
+              <div className="custom-notes-icon me-2">
+                <svg
+                  width="24"
+                  height="24"
+                  fill="currentColor"
+                  aria-hidden="true"
+                >
+                  <rect
+                    width="20"
+                    height="20"
+                    x="2"
+                    y="2"
+                    rx="5"
+                    fill="#e0e7ff"
+                  />
+                  <text
+                    x="12"
+                    y="16"
+                    textAnchor="middle"
+                    fontSize="14"
+                    fill="#6366f1"
+                    fontFamily="Arial"
+                    fontWeight="bold"
+                    dominantBaseline="middle"
+                  >
+                    ⚖️
+                  </text>
+                </svg>
+              </div>
+              <div className="invoice-notes-title mb-0">Terms</div>
+            </div>
+            <Form.Control
+              placeholder="For example: Payment is due within 30 days."
+              name="terms"
+              value={this.state.terms}
+              onChange={(event) => this.editField(event)}
+              as="textarea"
+              className="invoice-terms-field custom-notes-field"
+              rows={2}
+              aria-label="Invoice terms"
+            />
+          </div>
+        </div>
 
         {/* Sidebar */}
         <div className="invoice-sidebar">

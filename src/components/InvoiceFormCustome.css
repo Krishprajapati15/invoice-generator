@@ -364,3 +364,47 @@ body {
   border-color: #6366f1;
   box-shadow: 0 0 0 2px #a5b4fc;
 }
+
+.beautiful-add-item-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.3rem 1.3rem 1.1rem 1.3rem;
+  background: linear-gradient(90deg, #e0e7ff 60%, #f4f7fa 100%);
+  border-radius: 1.1rem 1.1rem 0 0;
+  box-shadow: 0 3px 12px rgba(99, 102, 241, 0.07);
+  margin-bottom: 0.6rem;
+  border-bottom: 1.5px solid #6366f1;
+}
+
+.beautiful-add-item-label {
+  font-size: 1.09rem;
+  color: #6366f1;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+}
+
+.beautiful-add-btn {
+  font-size: 1.09rem !important;
+  font-weight: 600 !important;
+  border-radius: 999px !important;
+  padding: 0.48rem 1.45rem !important;
+  box-shadow: 0 3px 10px rgba(99, 102, 241, 0.1);
+  background: linear-gradient(90deg, #e0e7ff 0%, #a5b4fc 100%);
+  color: #3730a3 !important;
+  border: 2px solid #6366f1 !important;
+  transition: background 0.2s, color 0.2s, box-shadow 0.2s, transform 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.beautiful-add-btn:hover,
+.beautiful-add-btn:focus {
+  background: linear-gradient(90deg, #6366f1 0%, #22d3ee 100%);
+  color: #fff !important;
+  border-color: #22d3ee !important;
+  transform: scale(1.04);
+  box-shadow: 0 6px 18px rgba(99, 102, 241, 0.13);
+}
