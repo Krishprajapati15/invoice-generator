@@ -52,14 +52,14 @@ class InvoiceForm extends React.Component {
       ],
     };
     this.editField = this.editField.bind(this);
+    this.onItemizedItemEdit = this.onItemizedItemEdit.bind(this);
   }
   componentDidMount(prevProps) {
     this.handleCalculateTotal();
   }
   handleRowDel(items) {
-    var index = this.state.items.indexOf(items);
-    this.state.items.splice(index, 1);
-    this.setState({ items: this.state.items });
+    const itemsArr = this.state.items.filter((item) => item.id !== items.id);
+    this.setState({ items: itemsArr }, this.handleCalculateTotal);
   }
   handleAddEvent(evt) {
     var id = (+new Date() + Math.floor(Math.random() * 999999)).toString(36);
@@ -70,75 +70,64 @@ class InvoiceForm extends React.Component {
       description: "",
       quantity: 1,
     };
-    this.state.items.push(items);
-    this.setState({ items: this.state.items });
+    this.setState(
+      (prevState) => ({ items: [...prevState.items, items] }),
+      this.handleCalculateTotal
+    );
   }
   handleCalculateTotal() {
-    var items = this.state.items;
-    var subTotal = 0;
+    const items = this.state.items;
+    let subTotal = 0;
 
     items.forEach(function (item) {
-      subTotal = parseFloat(
-        subTotal + parseFloat(item.price).toFixed(2) * parseInt(item.quantity)
-      ).toFixed(2);
+      const price = parseFloat(item.price) || 0;
+      const quantity = parseInt(item.quantity) || 0;
+      subTotal = parseFloat(subTotal) + price * quantity;
     });
 
     this.setState(
       {
-        subTotal: parseFloat(subTotal).toFixed(2),
+        subTotal: subTotal.toFixed(2),
       },
       () => {
-        this.setState(
-          {
-            taxAmmount: parseFloat(
-              parseFloat(subTotal) * (this.state.taxRate / 100)
-            ).toFixed(2),
-          },
-          () => {
-            this.setState(
-              {
-                discountAmmount: parseFloat(
-                  parseFloat(subTotal) * (this.state.discountRate / 100)
-                ).toFixed(2),
-              },
-              () => {
-                this.setState({
-                  total:
-                    parseFloat(subTotal) -
-                    parseFloat(this.state.discountAmmount) +
-                    parseFloat(this.state.taxAmmount) +
-                    parseFloat(this.state.shippingCharge || 0),
-                });
-              }
-            );
-          }
-        );
+        const taxAmmount =
+          (parseFloat(this.state.subTotal) *
+            (parseFloat(this.state.taxRate) || 0)) /
+          100;
+        const discountAmmount =
+          (parseFloat(this.state.subTotal) *
+            (parseFloat(this.state.discountRate) || 0)) /
+          100;
+        const shipping = parseFloat(this.state.shippingCharge) || 0;
+        const total =
+          parseFloat(this.state.subTotal) -
+          discountAmmount +
+          taxAmmount +
+          shipping;
+
+        this.setState({
+          taxAmmount: taxAmmount.toFixed(2),
+          discountAmmount: discountAmmount.toFixed(2),
+          total: total.toFixed(2),
+        });
       }
     );
   }
+  // FIXED: Immutable and reliable item update
   onItemizedItemEdit(evt) {
-    var item = {
-      id: evt.target.id,
-      name: evt.target.name,
-      value: evt.target.value,
-    };
-    var items = this.state.items.slice();
-    var newItems = items.map(function (itm) {
-      for (var key in itm) {
-        if (key === item.name && itm.id === item.id) {
-          itm[key] = item.value;
-        }
-      }
-      return itm;
-    });
-    this.setState({ items: newItems });
-    this.handleCalculateTotal();
+    const { id, name, value } = evt.target;
+    const newItems = this.state.items.map((item) =>
+      item.id === id ? { ...item, [name]: value } : item
+    );
+    this.setState({ items: newItems }, this.handleCalculateTotal);
   }
   editField = (event) => {
-    this.setState({
-      [event.target.name]: event.target.value,
-    });
-    this.handleCalculateTotal();
+    this.setState(
+      {
+        [event.target.name]: event.target.value,
+      },
+      this.handleCalculateTotal
+    );
   };
   onCurrencyChange = (selectedOption) => {
     this.setState(selectedOption);
@@ -201,7 +190,7 @@ class InvoiceForm extends React.Component {
                 type="date"
                 value={this.state.dateOfIssue}
                 name={"dateOfIssue"}
-                onChange={(event) => this.editField(event)}
+                onChange={this.editField}
                 style={{
                   maxWidth: "150px",
                   marginLeft: "0.7rem",
@@ -217,7 +206,7 @@ class InvoiceForm extends React.Component {
                 type="number"
                 value={this.state.invoiceNumber}
                 name={"invoiceNumber"}
-                onChange={(event) => this.editField(event)}
+                onChange={this.editField}
                 min="1"
                 style={{
                   maxWidth: "70px",
@@ -241,7 +230,7 @@ class InvoiceForm extends React.Component {
                 type="text"
                 name="billTo"
                 className="my-2"
-                onChange={(event) => this.editField(event)}
+                onChange={this.editField}
                 autoComplete="name"
                 required="required"
               />
@@ -254,7 +243,7 @@ class InvoiceForm extends React.Component {
                   value={this.state.billToEmail}
                   type="email"
                   name="billToEmail"
-                  onChange={(event) => this.editField(event)}
+                  onChange={this.editField}
                   autoComplete="email"
                   required="required"
                 />
@@ -269,7 +258,7 @@ class InvoiceForm extends React.Component {
                   type="text"
                   name="billToAddress"
                   autoComplete="address"
-                  onChange={(event) => this.editField(event)}
+                  onChange={this.editField}
                   required="required"
                 />
               </InputGroup>
@@ -285,7 +274,7 @@ class InvoiceForm extends React.Component {
                 type="text"
                 name="billFrom"
                 className="my-2"
-                onChange={(event) => this.editField(event)}
+                onChange={this.editField}
                 autoComplete="name"
                 required="required"
               />
@@ -298,7 +287,7 @@ class InvoiceForm extends React.Component {
                   value={this.state.billFromEmail}
                   type="email"
                   name="billFromEmail"
-                  onChange={(event) => this.editField(event)}
+                  onChange={this.editField}
                   autoComplete="email"
                   required="required"
                 />
@@ -313,7 +302,7 @@ class InvoiceForm extends React.Component {
                   type="text"
                   name="billFromAddress"
                   autoComplete="address"
-                  onChange={(event) => this.editField(event)}
+                  onChange={this.editField}
                   required="required"
                 />
               </InputGroup>
@@ -336,7 +325,7 @@ class InvoiceForm extends React.Component {
               </Button>
             </div>
             <InvoiceItem
-              onItemizedItemEdit={this.onItemizedItemEdit.bind(this)}
+              onItemizedItemEdit={this.onItemizedItemEdit}
               onRowAdd={this.handleAddEvent.bind(this)}
               onRowDel={this.handleRowDel.bind(this)}
               currency={this.state.currency}
@@ -375,7 +364,7 @@ class InvoiceForm extends React.Component {
               placeholder="Thanks for your business!"
               name="notes"
               value={this.state.notes}
-              onChange={(event) => this.editField(event)}
+              onChange={this.editField}
               as="textarea"
               className="invoice-notes-field custom-notes-field"
               rows={2}
@@ -417,7 +406,7 @@ class InvoiceForm extends React.Component {
               placeholder="For example: Payment is due within 30 days."
               name="terms"
               value={this.state.terms}
-              onChange={(event) => this.editField(event)}
+              onChange={this.editField}
               as="textarea"
               className="invoice-terms-field custom-notes-field"
               rows={2}
@@ -550,7 +539,7 @@ class InvoiceForm extends React.Component {
                   name="taxRate"
                   type="number"
                   value={this.state.taxRate}
-                  onChange={(event) => this.editField(event)}
+                  onChange={this.editField}
                   className="bg-white border"
                   placeholder="0.0"
                   min="0.00"
@@ -569,7 +558,7 @@ class InvoiceForm extends React.Component {
                   name="discountRate"
                   type="number"
                   value={this.state.discountRate}
-                  onChange={(event) => this.editField(event)}
+                  onChange={this.editField}
                   className="bg-white border"
                   placeholder="0.0"
                   min="0.00"
@@ -588,7 +577,7 @@ class InvoiceForm extends React.Component {
                   name="shippingCharge"
                   type="number"
                   value={this.state.shippingCharge}
-                  onChange={(event) => this.editField(event)}
+                  onChange={this.editField}
                   className="bg-white border"
                   placeholder="0.00"
                   min="0.00"

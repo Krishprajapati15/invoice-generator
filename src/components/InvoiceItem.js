@@ -77,7 +77,10 @@ class ItemRow extends React.Component {
             />
           </div>
         </td>
-        <td style={{ minWidth: "70px", padding: "14px 10px" }}>
+        <td
+          className="text-center"
+          style={{ minWidth: "70px", padding: "14px 10px" }}
+        >
           <EditableField
             onItemizedItemEdit={this.props.onItemizedItemEdit}
             cellData={{
@@ -90,7 +93,10 @@ class ItemRow extends React.Component {
             }}
           />
         </td>
-        <td style={{ minWidth: "130px", padding: "14px 10px" }}>
+        <td
+          className="text-center"
+          style={{ minWidth: "130px", padding: "14px 10px" }}
+        >
           <EditableField
             onItemizedItemEdit={this.props.onItemizedItemEdit}
             cellData={{
