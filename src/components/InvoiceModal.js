@@ -10,7 +10,12 @@ import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 
 function GenerateInvoice() {
-  html2canvas(document.querySelector("#invoiceCapture")).then((canvas) => {
+  html2canvas(document.querySelector("#invoiceCapture"), {
+    allowTaint: true,
+    useCORS: true,
+    scale: 2,
+    logging: false,
+  }).then((canvas) => {
     const imgData = canvas.toDataURL("image/png", 1.0);
     const pdf = new jsPDF({
       orientation: "portrait",
@@ -29,7 +34,20 @@ function GenerateInvoice() {
 class InvoiceModal extends React.Component {
   constructor(props) {
     super(props);
+    this.state = {
+      logoLoaded: false,
+    };
   }
+
+  handleLogoLoad = () => {
+    this.setState({ logoLoaded: true });
+  };
+
+  handleLogoError = (e) => {
+    console.warn("Logo failed to load:", e.target.src);
+    e.target.style.display = "none";
+  };
+
   render() {
     return (
       <div>
@@ -43,20 +61,27 @@ class InvoiceModal extends React.Component {
             <div className="d-flex flex-row justify-content-between align-items-start bg-light w-100 p-4">
               {/* Logo and BillFrom Section */}
               <div className="w-100 d-flex align-items-start">
-                {/* Logo Preview */}
+                {/* Logo Preview - Enhanced with better error handling */}
                 {this.props.info.logoPreview && (
-                  <img
-                    src={this.props.info.logoPreview}
-                    alt="Logo"
-                    style={{
-                      maxHeight: 64,
-                      maxWidth: 120,
-                      marginRight: 24,
-                      borderRadius: 6,
-                      objectFit: "contain",
-                      background: "#fff",
-                    }}
-                  />
+                  <div style={{ marginRight: 24, minWidth: 120 }}>
+                    <img
+                      src={this.props.info.logoPreview}
+                      alt="Company Logo"
+                      style={{
+                        maxHeight: 64,
+                        maxWidth: 120,
+                        borderRadius: 6,
+                        objectFit: "contain",
+                        background: "#fff",
+                        padding: "4px",
+                        border: "1px solid #e0e0e0",
+                        display: "block",
+                      }}
+                      onLoad={this.handleLogoLoad}
+                      onError={this.handleLogoError}
+                      crossOrigin="anonymous"
+                    />
+                  </div>
                 )}
                 <div>
                   <h4 className="fw-bold my-2">
@@ -187,15 +212,19 @@ class InvoiceModal extends React.Component {
                 </tbody>
               </Table>
               {this.props.info.notes && (
-                <div className="bg-light py-3 px-4 rounded mb-2">
-                  <div className="fw-bold mb-1">Notes:</div>
-                  <div>{this.props.info.notes}</div>
-                </div>
-              )}
-              {this.props.info.terms && (
-                <div className="bg-light py-3 px-4 rounded mt-2">
-                  <div className="fw-bold mb-1">Terms:</div>
-                  <div>{this.props.info.terms}</div>
+                <div
+                  style={{
+                    background:
+                      "linear-gradient(135deg, #e8f5e8 0%, #f0f8f0 100%)",
+                    border: "1px solid #28a745",
+                    borderRadius: "12px",
+                  }}
+                  className="py-3 px-4 mt-3"
+                >
+                  <div className="fw-bold mb-2 text-success">
+                    <i className="fas fa-sticky-note me-2"></i>Thank You Note:
+                  </div>
+                  <div className="text-success">{this.props.info.notes}</div>
                 </div>
               )}
             </div>
