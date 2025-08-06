@@ -26,7 +26,7 @@ class InvoiceForm extends React.Component {
       billFromEmail: "vdfoods77@gmail.com",
       billFromAddress: "Mo: 9104029941",
       notes:
-        "Thank you for your business! We appreciate your trust in VD Foods.",
+        "Thank you for choosing VD FOODS. We truly appreciate your trust in us  your support inspires us to deliver the finest spices and purest oils from tradition to your kitchen.",
       total: "0.00",
       subTotal: "0.00",
       taxRate: "",
@@ -48,94 +48,125 @@ class InvoiceForm extends React.Component {
       },
     ];
     this.editField = this.editField.bind(this);
+    this.handleRowDel = this.handleRowDel.bind(this);
+    this.handleAddEvent = this.handleAddEvent.bind(this);
+    this.onItemizedItemEdit = this.onItemizedItemEdit.bind(this);
   }
-  componentDidMount(prevProps) {
+
+  componentDidMount() {
     this.handleCalculateTotal();
   }
+
+  // Add componentDidUpdate to recalculate when items change
+  componentDidUpdate(prevProps, prevState) {
+    // Only recalculate if items, tax rate, discount rate, or shipping charge changed
+    if (
+      prevState.items !== this.state.items ||
+      prevState.taxRate !== this.state.taxRate ||
+      prevState.discountRate !== this.state.discountRate ||
+      prevState.shippingCharge !== this.state.shippingCharge
+    ) {
+      this.handleCalculateTotal();
+    }
+  }
+
   handleRowDel(items) {
     var index = this.state.items.indexOf(items);
-    this.state.items.splice(index, 1);
-    this.setState(this.state.items);
+    if (index !== -1) {
+      const newItems = [...this.state.items];
+      newItems.splice(index, 1);
+      this.setState({ items: newItems }, () => {
+        this.handleCalculateTotal();
+      });
+    }
   }
+
   handleAddEvent(evt) {
     var id = (+new Date() + Math.floor(Math.random() * 999999)).toString(36);
-    var items = {
+    var newItem = {
       id: id,
       name: "",
       price: "", // Changed to empty string
       description: "",
       quantity: 1,
     };
-    this.state.items.push(items);
-    this.setState(this.state.items);
+    const newItems = [...this.state.items, newItem];
+    this.setState({ items: newItems }, () => {
+      this.handleCalculateTotal();
+    });
   }
+
   handleCalculateTotal() {
     var items = this.state.items;
     var subTotal = 0;
 
-    items.map(function (items) {
-      const price = parseFloat(items.price) || 0; // Handle empty price
-      subTotal = parseFloat(
-        subTotal + price * parseInt(items.quantity)
-      ).toFixed(2);
+    // Fixed the calculation logic
+    items.forEach(function (item) {
+      const price = parseFloat(item.price) || 0; // Handle empty price
+      const quantity = parseInt(item.quantity) || 0;
+      subTotal += price * quantity;
     });
 
-    this.setState(
-      {
-        subTotal: parseFloat(subTotal).toFixed(2),
-      },
-      () => {
-        this.setState(
-          {
-            taxAmmount: parseFloat(
-              parseFloat(subTotal) * (this.state.taxRate / 100)
-            ).toFixed(2),
-          },
-          () => {
-            this.setState(
-              {
-                discountAmmount: parseFloat(
-                  parseFloat(subTotal) * (this.state.discountRate / 100)
-                ).toFixed(2),
-              },
-              () => {
-                this.setState({
-                  total:
-                    parseFloat(subTotal) -
-                    parseFloat(this.state.discountAmmount) +
-                    parseFloat(this.state.taxAmmount) +
-                    parseFloat(this.state.shippingCharge || 0),
-                });
-              }
-            );
-          }
-        );
-      }
+    subTotal = parseFloat(subTotal.toFixed(2));
+
+    // Calculate tax amount
+    const taxRate = parseFloat(this.state.taxRate) || 0;
+    const taxAmount = parseFloat((subTotal * (taxRate / 100)).toFixed(2));
+
+    // Calculate discount amount
+    const discountRate = parseFloat(this.state.discountRate) || 0;
+    const discountAmount = parseFloat(
+      (subTotal * (discountRate / 100)).toFixed(2)
     );
+
+    // Calculate shipping charge
+    const shippingCharge = parseFloat(this.state.shippingCharge) || 0;
+
+    // Calculate total
+    const total = parseFloat(
+      (subTotal - discountAmount + taxAmount + shippingCharge).toFixed(2)
+    );
+
+    this.setState({
+      subTotal: subTotal.toFixed(2),
+      taxAmmount: taxAmount.toFixed(2),
+      discountAmmount: discountAmount.toFixed(2),
+      total: total.toFixed(2),
+    });
   }
+
   onItemizedItemEdit(evt) {
-    var item = {
+    const item = {
       id: evt.target.id,
       name: evt.target.name,
       value: evt.target.value,
     };
-    var items = this.state.items.slice();
-    var newItems = items.map(function (items) {
-      for (var key in items) {
-        if (key == item.name && items.id == item.id) {
-          items[key] = item.value;
-        }
+
+    const items = [...this.state.items]; // Create a copy
+    const newItems = items.map(function (currentItem) {
+      if (currentItem.id == item.id) {
+        return {
+          ...currentItem,
+          [item.name]: item.value,
+        };
       }
-      return items;
+      return currentItem;
     });
-    this.setState({ items: newItems });
-    this.handleCalculateTotal();
+
+    this.setState({ items: newItems }, () => {
+      this.handleCalculateTotal();
+    });
   }
+
   editField = (event) => {
-    this.setState({
-      [event.target.name]: event.target.value,
-    });
-    this.handleCalculateTotal();
+    this.setState(
+      {
+        [event.target.name]: event.target.value,
+      },
+      () => {
+        this.handleCalculateTotal();
+      }
+    );
   };
 
   openModal = (event) => {
@@ -143,7 +174,9 @@ class InvoiceForm extends React.Component {
     this.handleCalculateTotal();
     this.setState({ isOpen: true });
   };
+
   closeModal = (event) => this.setState({ isOpen: false });
+
   render() {
     return (
       <div style={{ backgroundColor: "#f8f9fa", minHeight: "100vh" }}>
@@ -330,9 +363,9 @@ class InvoiceForm extends React.Component {
                   </Card.Header>
                   <Card.Body className="p-0">
                     <InvoiceItem
-                      onItemizedItemEdit={this.onItemizedItemEdit.bind(this)}
-                      onRowAdd={this.handleAddEvent.bind(this)}
-                      onRowDel={this.handleRowDel.bind(this)}
+                      onItemizedItemEdit={this.onItemizedItemEdit}
+                      onRowAdd={this.handleAddEvent}
+                      onRowDel={this.handleRowDel}
                       currency={this.state.currency}
                       items={this.state.items}
                     />
@@ -343,8 +376,6 @@ class InvoiceForm extends React.Component {
               {/* Sidebar */}
               <Col xl={4} lg={5}>
                 <div className="sticky-top" style={{ top: "20px" }}>
-                  {/* Download Button */}
-
                   {/* Invoice Summary */}
                   <Card className="shadow-sm border-0 mb-4">
                     <Card.Header className="bg-success text-white py-3">
