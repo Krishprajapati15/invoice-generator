@@ -87,7 +87,23 @@ function GenerateInvoice() {
           pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
         }
 
-        pdf.save("invoice-001.pdf");
+        // Generate dynamic filename based on customer name and invoice number
+        const customerName =
+          element
+            .querySelector(".invoice-bill-to")
+            ?.textContent?.split("\n")[1]
+            ?.trim() || "Customer";
+        const invoiceNumber =
+          element
+            .querySelector(".invoice-number")
+            ?.textContent?.replace("Invoice #:", "")
+            .trim() || "001";
+
+        // Clean filename (remove special characters)
+        const cleanCustomerName = customerName.replace(/[^a-zA-Z0-9]/g, "_");
+        const filename = `Invoice_${cleanCustomerName}_${invoiceNumber}.pdf`;
+
+        pdf.save(filename);
       })
       .catch((error) => {
         console.error("PDF generation failed:", error);
@@ -286,20 +302,26 @@ class InvoiceModal extends React.Component {
                 </tbody>
               </Table>
               {this.props.info.notes && (
-                <div
-                  className="invoice-notes"
-                  style={{
-                    background:
-                      "linear-gradient(135deg, #e8f5e8 0%, #f0f8f0 100%)",
-                    border: "1px solid #28a745",
-                    borderRadius: "12px",
-                  }}
-                >
-                  <div className="py-3 px-4 mt-3">
-                    <div className="fw-bold mb-2 text-success">
-                      <i className="fas fa-sticky-note me-2"></i>Thank You Note:
+                <div className="mt-3">
+                  <div
+                    className="invoice-notes py-3 px-4"
+                    style={{
+                      background:
+                        "linear-gradient(135deg, #e8f5e8 0%, #f0f8f0 100%)",
+                      border: "1px solid #28a745",
+                      borderRadius: "12px",
+                    }}
+                  >
+                    <div className="fw-bold mb-2 text-success d-flex align-items-center flex-wrap">
+                      <i className="fas fa-sticky-note me-2"></i>
+                      <span>Thank You Note:</span>
                     </div>
-                    <div className="text-success">{this.props.info.notes}</div>
+                    <div
+                      className="text-success"
+                      style={{ wordBreak: "break-word", lineHeight: "1.5" }}
+                    >
+                      {this.props.info.notes}
+                    </div>
                   </div>
                 </div>
               )}
@@ -307,6 +329,19 @@ class InvoiceModal extends React.Component {
           </div>
           <div className="pb-4 px-4">
             <Row>
+              <Col md={6}>
+                <Button
+                  variant="primary"
+                  className="d-block w-100"
+                  onClick={GenerateInvoice}
+                >
+                  <BiPaperPlane
+                    style={{ width: "15px", height: "15px", marginTop: "-3px" }}
+                    className="me-2"
+                  />
+                  Send Invoice
+                </Button>
+              </Col>
               <Col md={6}>
                 <Button
                   variant="success"
@@ -329,6 +364,27 @@ class InvoiceModal extends React.Component {
           /* Desktop-specific styles for PDF generation */
           .invoice-pdf-container {
             min-width: 800px;
+          }
+
+          /* Responsive notes section */
+          .invoice-notes {
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+          }
+
+          @media (max-width: 768px) {
+            .invoice-notes {
+              margin: 0 -1rem;
+              border-radius: 8px;
+            }
+
+            .invoice-notes .d-flex {
+              flex-direction: column;
+            }
+
+            .invoice-notes .fas {
+              margin-bottom: 0.25rem;
+            }
           }
 
           /* Ensure consistent layout during PDF generation */
@@ -354,6 +410,10 @@ class InvoiceModal extends React.Component {
             .invoice-items-table,
             .invoice-totals-table {
               width: 100% !important;
+            }
+
+            .invoice-notes {
+              page-break-inside: avoid;
             }
           }
         `}</style>
